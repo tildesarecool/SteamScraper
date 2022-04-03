@@ -23,7 +23,9 @@ from pathlib import Path
 
 # this user has only 8 games. easier sampler data
 STEAM_LIBRARY_URL = '''https://steamcommunity.com/id/nelixery/games/?tab=all'''
-SAVED_DATA_FILE_NAME = '''gamedata.txt'''
+STEAM_USER_ID = '''nelixery'''
+SAVED_DATA_FILE_NAME = 'gamedata-for-' + STEAM_USER_ID + '''.txt'''
+
 # I could check the return code here but I'll save that for later instead
 
 # this part should be a function since I don't want to download the HTML and parse it
@@ -61,26 +63,44 @@ def CheckFileExists():
 
 #print(CheckFileExists())
 
+def RetrieveSteamData():
+    # use get to grab the HTML source
+    result = requests.get(STEAM_LIBRARY_URL) # resut.text will show whole source of page
+    # make this into HTML
+    loadToBeaut = BeautifulSoup(result.text, "html.parser")
+    # select "only" the appropriate <script> tag with the JSON data
+    scriptContent = str(loadToBeaut.select('#responsive_page_template_content > script:nth-child(4)')[0])
+    # jump to first character of JSON string (position)
+    #PostambleStartPos = (scriptContent.find("= ") + 2)
+    # decided I'll skip out the '[' and '];' before/after json string as they're probably not needed
+    PostambleStartPos = (scriptContent.find("= ") + 3)
+    # jump to last character of JSON string (position)
+    #startSuffixPos = scriptContent.find("rgChangingGames") - 8
+    startSuffixPos = scriptContent.find("rgChangingGames") - 10
+    # hopefully this is just the json string
+    justGamedata = scriptContent[PostambleStartPos:startSuffixPos] 
+    return justGamedata
+    # pyperclip.copy(justGamedata)
+#    print(str(type(justGamedata))) # type is string
 
-# use get to grab the HTML source
-result = requests.get(STEAM_LIBRARY_URL) # resut.text will show whole source of page
-# make this into HTML
-loadToBeaut = BeautifulSoup(result.text, "html.parser")
+#RetrieveSteamData()
 
-# select "only" the appropriate <script> tag with the JSON data
-scriptContent = str(loadToBeaut.select('#responsive_page_template_content > script:nth-child(4)')[0])
+#DataFile = RetrieveSteamData()
+#pyperclip.copy(DataFile)
 
-# jump to first character of JSON string (position)
-#PostambleStartPos = (scriptContent.find("= ") + 2)
 
-# decided I'll skip out the '[' and '];' before/after json string as they're probably not needed
-PostambleStartPos = (scriptContent.find("= ") + 3)
-# jump to last character of JSON string (position)
-#startSuffixPos = scriptContent.find("rgChangingGames") - 8
-startSuffixPos = scriptContent.find("rgChangingGames") - 10
+def WriteOrOpenDatafile():
+    if CheckFileExists() == False:
+        DataFile = RetrieveSteamData()
+        with open(SAVED_DATA_FILE_NAME, "w+") as file:
+            file.write(DataFile)
+            file.close()
+            print("file written")
+    else:
+        print("file exists")
 
-# hopefully this is just the json string
-justGamedata = scriptContent[PostambleStartPos:startSuffixPos] 
+WriteOrOpenDatafile()
+
 # this just copies the above varialbe to the clipboard so I can paste into notepad
 # and yes, I have the json string only
 #pyperclip.copy(justGamedata)
@@ -97,13 +117,7 @@ justGamedata = scriptContent[PostambleStartPos:startSuffixPos]
 
 #print("Vale of file exists is ", + CheckFileExists())
 
-if CheckFileExists() == False:
-    with open(SAVED_DATA_FILE_NAME, "w+") as file:
-        file.write(justGamedata)
-        file.close()
-        print("file written")
-else:
-    print("file exists")
+
         
 #else:
 #    with open(SAVED_DATA_FILE_NAME, "r+") as file:
