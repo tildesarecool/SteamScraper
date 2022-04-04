@@ -17,6 +17,9 @@
 #STEAM_LIBRARY_URL = steamURLFirstHalf + input_string_var + steamURLSecondHalf
 
 # import some modules. probably need reg expressions eventually too.
+
+########### note: json.dumps() not needed yet, use load()/loads() instead
+from msilib.schema import AppId
 import requests, pyperclip, json
 from bs4 import BeautifulSoup
 from pathlib import Path
@@ -96,10 +99,103 @@ def WriteOrOpenDatafile():
             file.write(DataFile)
             file.close()
             print("file written")
+        return DataFile
     else:
-        print("file exists")
+        with open(SAVED_DATA_FILE_NAME, "r+") as file:
+            # FileContents = json.load(file) # doens't work at this stage
+            FileContents = file.read()
+            file.close()
+        #pyperclip.copy(TakeOutEscSlash)
+        return FileContents
+        
+    
+        
 
-WriteOrOpenDatafile()
+            #print("file exists")
+
+#WriteOrOpenDatafile()
+
+
+BringInString = WriteOrOpenDatafile()
+TakeOutEscSlash = BringInString.replace('''\/''','''/''',-1)
+
+#TakeOutEscSlash.
+#pyperclip.copy(TakeOutEscSlash)
+
+########### note: json.dumps() not needed yet, use load()/loads() instead
+
+OneEntryJSON = '[' + ''' 
+{
+    "appid":1536770,
+    "name":"Learn Programming: Python - Retro","app_type":1,
+    "logo":"https://cdn.akamai.steamstatic.com/steam/apps/1536770/capsule_184x69.jpg",
+    "friendlyURL":false,
+    "availStatLinks":
+    {
+        "achievements":false,
+        "global_achievements":false,
+        "stats":false,
+        "gcpd":false,
+        "leaderboards":false,
+        "global_leaderboards":false
+    },
+        "hours_forever":"192",
+        "last_played":1643042035
+},
+{
+        "appid":39210,
+        "name":"FINAL FANTASY XIV Online",
+        "app_type":1,
+        "logo":"https://cdn.akamai.steamstatic.com/steam/apps/39210/capsule_184x69.jpg",
+        "friendlyURL":false,
+        "availStatLinks":
+        {
+            "achievements":false,
+            "global_achievements":false,
+            "stats":false,
+            "gcpd":false,
+            "leaderboards":false,
+            "global_leaderboards":false
+        },
+            "hours_forever":"79",
+            "last_played":1647682819
+}
+''' + ']'
+print(type(OneEntryJSON))
+
+OneEntryJSON2 = json.loads(OneEntryJSON)
+print(type(OneEntryJSON2))
+print(len(OneEntryJSON2))
+#print(OneEntryJSON2[0])
+
+NewDict = {}
+#ListEntOne = dict(OneEntryJSON2[0])
+#ListEntTwo = dict(OneEntryJSON2[1])
+ListEntOne = OneEntryJSON2[0]
+ListEntTwo = OneEntryJSON2[1]
+#NewDict.update(ListEntOne)
+gamename = "game" + str(1)
+print(gamename)
+NewDict[gamename] = ListEntOne
+NewDict[1] = ListEntTwo
+#NewDict = NewDict.update(ListEntTwo)
+
+#print(NewDict.get(appid))
+#NewDict.update(ListEntTwo)
+#print(NewDict.values())
+#print(NewDict.items())
+
+#EntryJSONIntoDict = json.loads(OneEntryJSON)
+#formattedJSON = json.dumps(EntryJSONIntoDict, indent=4)
+formattedJSON = json.dumps(NewDict, indent=4)
+print(formattedJSON)
+#print(str(formattedJSON))
+
+
+'''EntryJSONIntoDict = json.loads(TakeOutEscSlash) # returns a dictionary object'''
+#print("JSON string = ", str(EntryJSONIntoDict))
+'''pyperclip.copy(str(EntryJSONIntoDict))'''
+
 
 # this just copies the above varialbe to the clipboard so I can paste into notepad
 # and yes, I have the json string only
