@@ -1,0 +1,36 @@
+{
+    "entry1": {
+        "appid": 1536770,
+        "name": "Learn Programming: Python - Retro",
+        "app_type": 1,
+        "logo": "https://cdn.akamai.steamstatic.com/steam/apps/1536770/capsule_184x69.jpg",
+        "friendlyURL": false,
+        "availStatLinks": {
+            "achievements": false,
+            "global_achievements": false,
+            "stats": false,
+            "gcpd": false,
+            "leaderboards": false,
+            "global_leaderboards": false
+        },
+        "hours_forever": "192",
+        "last_played": 1643042035
+    },
+    "1": {
+        "appid": 39210,
+        "name": "FINAL FANTASY XIV Online",
+        "app_type": 1,
+        "logo": "https://cdn.akamai.steamstatic.com/steam/apps/39210/capsule_184x69.jpg",
+        "friendlyURL": false,
+        "availStatLinks": {
+            "achievements": false,
+            "global_achievements": false,
+            "stats": false,
+            "gcpd": false,
+            "leaderboards": false,
+            "global_leaderboards": false
+        },
+        "hours_forever": "79",
+        "last_played": 1647682819
+    }
+}

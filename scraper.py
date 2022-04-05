@@ -123,7 +123,7 @@ TakeOutEscSlash = BringInString.replace('''\/''','''/''',-1)
 #pyperclip.copy(TakeOutEscSlash)
 
 ########### note: json.dumps() not needed yet, use load()/loads() instead
-
+#  '[' +
 OneEntryJSON = '[' + ''' 
 {
     "appid":1536770,
@@ -168,14 +168,25 @@ print(type(OneEntryJSON2))
 print(len(OneEntryJSON2))
 #print(OneEntryJSON2[0])
 
+rawWholeData = WriteOrOpenDatafile()
+print("rawwholedata is type: " + str(type(rawWholeData)))
+rawWholeData = '[' + rawWholeData + ']'
+rawWholeData2 = json.loads(rawWholeData)
+print("rawwholedata2 is type: " + str(type(rawWholeData2)))
+print("rawwholedata2 length: " + str(len(rawWholeData2)))
+
+
+#print("rawwholedata after brackets is type: " + str(type(rawWholeData2)))
+
+
 NewDict = {}
 #ListEntOne = dict(OneEntryJSON2[0])
 #ListEntTwo = dict(OneEntryJSON2[1])
 ListEntOne = OneEntryJSON2[0]
 ListEntTwo = OneEntryJSON2[1]
 #NewDict.update(ListEntOne)
-gamename = "game" + str(1)
-print(gamename)
+gamename = "entry" + str(1)
+print("game name is " + gamename)
 NewDict[gamename] = ListEntOne
 NewDict[1] = ListEntTwo
 #NewDict = NewDict.update(ListEntTwo)
@@ -188,7 +199,20 @@ NewDict[1] = ListEntTwo
 #EntryJSONIntoDict = json.loads(OneEntryJSON)
 #formattedJSON = json.dumps(EntryJSONIntoDict, indent=4)
 formattedJSON = json.dumps(NewDict, indent=4)
-print(formattedJSON)
+#print(formattedJSON)
+
+with open("newlysavedata.json", "w+") as file:
+    file.write(formattedJSON)
+    file.close()
+
+
+with open('newlysavedata.json', "r+") as file:
+    JSONcontents = json.load(file)       # reads a json object from a file
+print(JSONcontents)
+
+
+
+
 #print(str(formattedJSON))
 
 
