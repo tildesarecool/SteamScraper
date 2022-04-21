@@ -122,7 +122,7 @@ TakeOutEscSlash = BringInString.replace('''\/''','''/''',-1)
 #TakeOutEscSlash.
 #pyperclip.copy(TakeOutEscSlash)
 
-########### note: json.dumps() not needed yet, use load()/loads() instead
+
 #  '[' +
 OneEntryJSON = '[' + ''' 
 {
