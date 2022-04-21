@@ -28,7 +28,10 @@ def RetrieveSteamData():
 #RetrieveSteamData()
 
 
-f = open("oneline-singleentry.json", "r")
-print(f.readline())
-f.close()
+with open("oneline-singleentry.json", "r") as read_file: 
+    data = json.load(read_file)
+    #dtos = str(data)
+    print(type(data))
+    print(data)
+    read_file.close()
 

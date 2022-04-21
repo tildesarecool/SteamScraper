@@ -18,7 +18,15 @@
 
 # import some modules. probably need reg expressions eventually too.
 
-########### note: json.dumps() not needed yet, use load()/loads() instead
+
+'''
+20 april 2022
+
+******** turns out the replacing \/ with / is not necessary. it seems to just work with \/ without going through
+and replacing it as a string
+
+'''
+
 from msilib.schema import AppId
 import requests, pyperclip, json
 from bs4 import BeautifulSoup
