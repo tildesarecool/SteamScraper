@@ -13,6 +13,7 @@ def RetrieveSteamData():
     loadToBeaut = BeautifulSoup(result.text, "html.parser")
     # select "only" the appropriate <script> tag with the JSON data
     scriptContent = str(loadToBeaut.select('#responsive_page_template_content > script:nth-child(4)')[0])
+    #pyperclip.copy(scriptContent)
     #putToBoard = pyperclip.copy(scriptContent)
     # jump to first character of JSON string (position)
     #PostambleStartPos = (scriptContent.find("= ") + 2)
