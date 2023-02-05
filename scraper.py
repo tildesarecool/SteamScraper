@@ -17,13 +17,26 @@
 #STEAM_LIBRARY_URL = steamURLFirstHalf + input_string_var + steamURLSecondHalf
 
 # import some modules. probably need reg expressions eventually too.
+
+
+'''
+20 april 2022
+
+******** turns out the replacing \/ with / is not necessary. it seems to just work with \/ without going through
+and replacing it as a string
+
+'''
+
+from msilib.schema import AppId
 import requests, pyperclip, json
 from bs4 import BeautifulSoup
 from pathlib import Path
 
 # this user has only 8 games. easier sampler data
 STEAM_LIBRARY_URL = '''https://steamcommunity.com/id/nelixery/games/?tab=all'''
-SAVED_DATA_FILE_NAME = '''gamedata.txt'''
+STEAM_USER_ID = '''nelixery'''
+SAVED_DATA_FILE_NAME = 'gamedata-for-' + STEAM_USER_ID + '''.txt'''
+
 # I could check the return code here but I'll save that for later instead
 
 # this part should be a function since I don't want to download the HTML and parse it
@@ -61,26 +74,161 @@ def CheckFileExists():
 
 #print(CheckFileExists())
 
+def RetrieveSteamData():
+    # use get to grab the HTML source
+    result = requests.get(STEAM_LIBRARY_URL) # resut.text will show whole source of page
+    # make this into HTML
+    loadToBeaut = BeautifulSoup(result.text, "html.parser")
+    # select "only" the appropriate <script> tag with the JSON data
+    scriptContent = str(loadToBeaut.select('#responsive_page_template_content > script:nth-child(4)')[0])
+    # jump to first character of JSON string (position)
+    #PostambleStartPos = (scriptContent.find("= ") + 2)
+    # decided I'll skip out the '[' and '];' before/after json string as they're probably not needed
+    PostambleStartPos = (scriptContent.find("= ") + 3)
+    # jump to last character of JSON string (position)
+    #startSuffixPos = scriptContent.find("rgChangingGames") - 8
+    startSuffixPos = scriptContent.find("rgChangingGames") - 10
+    # hopefully this is just the json string
+    justGamedata = scriptContent[PostambleStartPos:startSuffixPos] 
+    return justGamedata
+    # pyperclip.copy(justGamedata)
+#    print(str(type(justGamedata))) # type is string
 
-# use get to grab the HTML source
-result = requests.get(STEAM_LIBRARY_URL) # resut.text will show whole source of page
-# make this into HTML
-loadToBeaut = BeautifulSoup(result.text, "html.parser")
+#RetrieveSteamData()
 
-# select "only" the appropriate <script> tag with the JSON data
-scriptContent = str(loadToBeaut.select('#responsive_page_template_content > script:nth-child(4)')[0])
+#DataFile = RetrieveSteamData()
+#pyperclip.copy(DataFile)
 
-# jump to first character of JSON string (position)
-#PostambleStartPos = (scriptContent.find("= ") + 2)
 
-# decided I'll skip out the '[' and '];' before/after json string as they're probably not needed
-PostambleStartPos = (scriptContent.find("= ") + 3)
-# jump to last character of JSON string (position)
-#startSuffixPos = scriptContent.find("rgChangingGames") - 8
-startSuffixPos = scriptContent.find("rgChangingGames") - 10
+def WriteOrOpenDatafile():
+    if CheckFileExists() == False:
+        DataFile = RetrieveSteamData()
+        with open(SAVED_DATA_FILE_NAME, "w+") as file:
+            file.write(DataFile)
+            file.close()
+            print("file written")
+        return DataFile
+    else:
+        with open(SAVED_DATA_FILE_NAME, "r+") as file:
+            # FileContents = json.load(file) # doens't work at this stage
+            FileContents = file.read()
+            file.close()
+        #pyperclip.copy(TakeOutEscSlash)
+        return FileContents
+        
+    
+        
 
-# hopefully this is just the json string
-justGamedata = scriptContent[PostambleStartPos:startSuffixPos] 
+            #print("file exists")
+
+#WriteOrOpenDatafile()
+
+
+BringInString = WriteOrOpenDatafile()
+TakeOutEscSlash = BringInString.replace('''\/''','''/''',-1)
+
+#TakeOutEscSlash.
+#pyperclip.copy(TakeOutEscSlash)
+
+
+#  '[' +
+OneEntryJSON = '[' + ''' 
+{
+    "appid":1536770,
+    "name":"Learn Programming: Python - Retro","app_type":1,
+    "logo":"https://cdn.akamai.steamstatic.com/steam/apps/1536770/capsule_184x69.jpg",
+    "friendlyURL":false,
+    "availStatLinks":
+    {
+        "achievements":false,
+        "global_achievements":false,
+        "stats":false,
+        "gcpd":false,
+        "leaderboards":false,
+        "global_leaderboards":false
+    },
+        "hours_forever":"192",
+        "last_played":1643042035
+},
+{
+        "appid":39210,
+        "name":"FINAL FANTASY XIV Online",
+        "app_type":1,
+        "logo":"https://cdn.akamai.steamstatic.com/steam/apps/39210/capsule_184x69.jpg",
+        "friendlyURL":false,
+        "availStatLinks":
+        {
+            "achievements":false,
+            "global_achievements":false,
+            "stats":false,
+            "gcpd":false,
+            "leaderboards":false,
+            "global_leaderboards":false
+        },
+            "hours_forever":"79",
+            "last_played":1647682819
+}
+''' + ']'
+print(type(OneEntryJSON))
+
+OneEntryJSON2 = json.loads(OneEntryJSON)
+print(type(OneEntryJSON2))
+print(len(OneEntryJSON2))
+#print(OneEntryJSON2[0])
+
+rawWholeData = WriteOrOpenDatafile()
+print("rawwholedata is type: " + str(type(rawWholeData)))
+rawWholeData = '[' + rawWholeData + ']'
+rawWholeData2 = json.loads(rawWholeData)
+print("rawwholedata2 is type: " + str(type(rawWholeData2)))
+print("rawwholedata2 length: " + str(len(rawWholeData2)))
+
+
+#print("rawwholedata after brackets is type: " + str(type(rawWholeData2)))
+
+
+NewDict = {}
+#ListEntOne = dict(OneEntryJSON2[0])
+#ListEntTwo = dict(OneEntryJSON2[1])
+ListEntOne = OneEntryJSON2[0]
+ListEntTwo = OneEntryJSON2[1]
+#NewDict.update(ListEntOne)
+gamename = "entry" + str(1)
+print("game name is " + gamename)
+NewDict[gamename] = ListEntOne
+NewDict[1] = ListEntTwo
+#NewDict = NewDict.update(ListEntTwo)
+
+#print(NewDict.get(appid))
+#NewDict.update(ListEntTwo)
+#print(NewDict.values())
+#print(NewDict.items())
+
+#EntryJSONIntoDict = json.loads(OneEntryJSON)
+#formattedJSON = json.dumps(EntryJSONIntoDict, indent=4)
+formattedJSON = json.dumps(NewDict, indent=4)
+#print(formattedJSON)
+
+with open("newlysavedata.json", "w+") as file:
+    file.write(formattedJSON)
+    file.close()
+
+
+with open('newlysavedata.json', "r+") as file:
+    JSONcontents = json.load(file)       # reads a json object from a file
+print(JSONcontents)
+
+
+
+
+#print(str(formattedJSON))
+
+
+'''EntryJSONIntoDict = json.loads(TakeOutEscSlash) # returns a dictionary object'''
+#print("JSON string = ", str(EntryJSONIntoDict))
+'''pyperclip.copy(str(EntryJSONIntoDict))'''
+
+
 # this just copies the above varialbe to the clipboard so I can paste into notepad
 # and yes, I have the json string only
 #pyperclip.copy(justGamedata)
@@ -97,13 +245,7 @@ justGamedata = scriptContent[PostambleStartPos:startSuffixPos]
 
 #print("Vale of file exists is ", + CheckFileExists())
 
-if CheckFileExists() == False:
-    with open(SAVED_DATA_FILE_NAME, "w+") as file:
-        file.write(justGamedata)
-        file.close()
-        print("file written")
-else:
-    print("file exists")
+
         
 #else:
 #    with open(SAVED_DATA_FILE_NAME, "r+") as file:
